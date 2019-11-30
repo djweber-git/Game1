@@ -34,6 +34,15 @@ public class Hex
         );
     }
     
+    public override bool Equals(object obj)
+    {
+        Hex temp = (Hex)obj;
+        return ((this.x == temp.x) && (this.y == temp.y) && (this.z == temp.z));
+    }
+    public override int GetHashCode()
+    {
+        return x;
+    }
     public override string ToString(){return this.x + "," + this.y + "," + this.z;}
     public int GetX () {return x;}
     public void SetX(int nX) {this.x = nX;}

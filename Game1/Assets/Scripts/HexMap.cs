@@ -7,30 +7,37 @@ public class HexMap : MonoBehaviour
     public const int CURRENT_RADIUS = 2;
     //This array of vectors denotes the relation of all 6 neighboring chunk centers at chunk radius of 2
     //could be eventually mathmatically determined by CURRENT_RADIUS to ensure proper generation with other radius sizes
-    public Vector3[] NeighborChunkCenter = new []  {new Vector3(-2,5,-3),
+    public static Vector3[] NeighborChunkCenter = new []  {new Vector3(-2,5,-3),
                                                     new Vector3(3,2,-5), 
                                                     new Vector3(5,-3,-2), 
                                                     new Vector3(2,-5,3), 
                                                     new Vector3(-3,-2,5), 
                                                     new Vector3(-5,3,2)};
     public GameObject HexPrefab;
+    public GameObject ChunkPreviewPrefab;
     public Material[] HexMaterials;
+    public Material[] PreviewMaterials;
     
     private Dictionary<(int,int), Hex> hexDict; 
-    
+    private List<Hex> storehouseList;
+    private List<GameObject> ChunkPreviewList;
     
     // Start is called before the first frame update
     void Start()
     {
         hexDict = new Dictionary<(int, int), Hex>();
+        storehouseList = new List<Hex>();
+        ChunkPreviewList = new List<GameObject>();
         GenerateChunk(0,0,CURRENT_RADIUS);
 
-        // GenerateChunk(-2,5,CURRENT_RADIUS);
-        // GenerateChunk(3,2,CURRENT_RADIUS);
-        // GenerateChunk(5,-3,CURRENT_RADIUS);
-        // GenerateChunk(2,-5,CURRENT_RADIUS);
-        // GenerateChunk(-3,-2,CURRENT_RADIUS);
-        // GenerateChunk(-5,3,CURRENT_RADIUS);
+        GenerateChunk(-2,5,CURRENT_RADIUS);
+        GenerateChunk(3,2,CURRENT_RADIUS);
+        GenerateChunk(5,-3,CURRENT_RADIUS);
+        GenerateChunk(2,-5,CURRENT_RADIUS);
+        GenerateChunk(-3,-2,CURRENT_RADIUS);
+        GenerateChunk(-5,3,CURRENT_RADIUS);
+
+        GenerateChunkPreviews();
     }
 
     // Update is called once per frame
@@ -43,7 +50,6 @@ public class HexMap : MonoBehaviour
     public void GenerateChunk(int xInit, int yInit, int radius)
     {
         int zInit = -(xInit + yInit);
-        bool isStorehouse = true;
         for (int x = (-radius) + xInit; (-radius) + xInit <= x && x <= radius + xInit ; x++)
         {
             for (int y = (-radius) + yInit; (-radius) + yInit <= y && y<= radius + yInit ; y++)
@@ -55,10 +61,10 @@ public class HexMap : MonoBehaviour
                         Hex h = new Hex(x,y,1);
                         GameObject hGO = Instantiate(HexPrefab, h.Position(), Quaternion.identity, this.transform);
                         hexDict.Add((x,y),h);
-                        if (isStorehouse) 
+                        if (x == xInit && y == yInit) 
                         {
                             h.SetHexType(2);
-                            isStorehouse = false;
+                            storehouseList.Add(h);
                         }
                         else
                         {
@@ -75,10 +81,34 @@ public class HexMap : MonoBehaviour
        
     }
 
-    public Hex[] FindNeighborChunk(Hex hexInit)
+    //Returns an array of vectors length 6 to locate the storehouse of the neighboring chunk from the current chunk
+    public Vector3[] FindNeighborChunks(Hex hexInit)
     {
-        Hex[] results = new Hex[6];
-        
+        Vector3[] results = new Vector3[6];
+        Vector3 vectorInit = new Vector3(hexInit.GetX() ,hexInit.GetY() ,hexInit.GetZ());
+        for (int i = 0; i < results.Length; i++)
+        {
+            results[i] = vectorInit + NeighborChunkCenter[i];
+        }
         return results;
+    }
+    
+    public void GenerateChunkPreviews()
+    {
+        foreach(Hex storehouse in storehouseList)
+        {
+            Vector3[] neighbors = FindNeighborChunks(storehouse);
+            for(int i = 0; i < neighbors.Length; i++)
+            {
+                Hex hexTemp = new Hex((int)neighbors[i].x, (int)neighbors[i].y, 0);
+                if(!storehouseList.Contains(hexTemp))
+                {
+                    GameObject hexPreviewGO = Instantiate(ChunkPreviewPrefab, hexTemp.Position(), Quaternion.identity, this.transform);
+                    hexPreviewGO.name = "Chunk Preview " + hexTemp.ToString();
+                    ChunkPreviewList.Add(hexPreviewGO);
+
+                }
+            }
+        }
     }
 }
