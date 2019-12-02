@@ -20,14 +20,14 @@ public class HexMap : MonoBehaviour
     
     private Dictionary<(int,int), Hex> hexDict; 
     private List<Hex> storehouseList;
-    private List<GameObject> ChunkPreviewList;
+    private Dictionary<(int,int), GameObject> ChunkPreviewDict;
     
     // Start is called before the first frame update
     void Start()
     {
         hexDict = new Dictionary<(int, int), Hex>();
         storehouseList = new List<Hex>();
-        ChunkPreviewList = new List<GameObject>();
+        ChunkPreviewDict = new Dictionary<(int, int), GameObject>();
         GenerateChunk(0,0,CURRENT_RADIUS);
 
         GenerateChunk(-2,5,CURRENT_RADIUS);
@@ -101,11 +101,11 @@ public class HexMap : MonoBehaviour
             for(int i = 0; i < neighbors.Length; i++)
             {
                 Hex hexTemp = new Hex((int)neighbors[i].x, (int)neighbors[i].y, 0);
-                if(!storehouseList.Contains(hexTemp))
+                if(!storehouseList.Contains(hexTemp) && !ChunkPreviewDict.ContainsKey((hexTemp.GetX(),hexTemp.GetY())))
                 {
                     GameObject hexPreviewGO = Instantiate(ChunkPreviewPrefab, hexTemp.Position(), Quaternion.identity, this.transform);
                     hexPreviewGO.name = "Chunk Preview " + hexTemp.ToString();
-                    ChunkPreviewList.Add(hexPreviewGO);
+                    ChunkPreviewDict.Add((hexTemp.GetX(), hexTemp.GetY()),hexPreviewGO);
 
                 }
             }
