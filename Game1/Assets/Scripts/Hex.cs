@@ -8,9 +8,18 @@ public class Hex
     private int x;
     private int y;
     private int z;
-    private int type;
 
-    public Hex(int xInit, int yInit, int typeInit)
+    public enum Types
+    {
+        grass = 0,
+        water = 1,
+        tree = 2,
+        storehouse = 3
+
+    };
+    private Types type;
+
+    public Hex(int xInit, int yInit, Types typeInit)
     {
         this.x = xInit;
         this.y = yInit;
@@ -39,18 +48,15 @@ public class Hex
         Hex temp = (Hex)obj;
         return ((this.x == temp.x) && (this.y == temp.y) && (this.z == temp.z));
     }
-    public override int GetHashCode()
-    {
-        return x;
-    }
-    public override string ToString(){return this.x + "," + this.y + "," + this.z;}
+    public override int GetHashCode() {return x;}
+    public override string ToString() {return this.x + "," + this.y + "," + this.z;}
     public int GetX () {return x;}
     public void SetX(int nX) {this.x = nX;}
     public int GetY () {return y;}
     public void SetY(int nY) {this.y = nY;}
     public int GetZ () {return z;}
     public void SetZ(int nZ) {this.z = nZ;}
-    public int GetHexType () {return type;}
-    public void SetHexType(int nType) {this.type = nType;}
+    public Types GetHexType () {return type;}
+    public void SetHexType(Types nType) {this.type = nType;}
 
 }

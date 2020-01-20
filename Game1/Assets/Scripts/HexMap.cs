@@ -30,12 +30,12 @@ public class HexMap : MonoBehaviour
         ChunkPreviewDict = new Dictionary<(int, int), GameObject>();
         GenerateChunk(0,0,CURRENT_RADIUS);
 
-        GenerateChunk(-2,5,CURRENT_RADIUS);
-        GenerateChunk(3,2,CURRENT_RADIUS);
-        GenerateChunk(5,-3,CURRENT_RADIUS);
-        GenerateChunk(2,-5,CURRENT_RADIUS);
-        GenerateChunk(-3,-2,CURRENT_RADIUS);
-        GenerateChunk(-5,3,CURRENT_RADIUS);
+        //GenerateChunk(-2,5,CURRENT_RADIUS);
+        //GenerateChunk(3,2,CURRENT_RADIUS);
+        //GenerateChunk(5,-3,CURRENT_RADIUS);
+        //GenerateChunk(2,-5,CURRENT_RADIUS);
+        //GenerateChunk(-3,-2,CURRENT_RADIUS);
+        //GenerateChunk(-5,3,CURRENT_RADIUS);
 
         GenerateChunkPreviews();
     }
@@ -50,6 +50,8 @@ public class HexMap : MonoBehaviour
     public void GenerateChunk(int xInit, int yInit, int radius)
     {
         int zInit = -(xInit + yInit);
+        int numWater = 0;
+        int numTree = 0;
         for (int x = (-radius) + xInit; (-radius) + xInit <= x && x <= radius + xInit ; x++)
         {
             for (int y = (-radius) + yInit; (-radius) + yInit <= y && y<= radius + yInit ; y++)
@@ -58,21 +60,31 @@ public class HexMap : MonoBehaviour
                 {
                     if (x + y + z == 0)
                     {
-                        Hex h = new Hex(x,y,1);
+                        Hex h = new Hex(x,y,Hex.Types.grass);
                         GameObject hGO = Instantiate(HexPrefab, h.Position(), Quaternion.identity, this.transform);
                         hexDict.Add((x,y),h);
                         if (x == xInit && y == yInit) 
                         {
-                            h.SetHexType(2);
+                            h.SetHexType(Hex.Types.storehouse);
                             storehouseList.Add(h);
                         }
                         else
                         {
-                            Random.Range(0, HexMaterials.Length);
+                            int i = Random.Range(0, 7);
+                            if (i == 0 || (numWater <= 3 && i==2))
+                            {                   
+                                h.SetHexType(Hex.Types.water);
+                                numWater++;
+                            }
+                            else if (i == 1 || (numWater > 3 && numTree <= 3 && i==2) || (numTree < 1 && i==3))
+                            {                   
+                                h.SetHexType(Hex.Types.tree);
+                                numTree++;
+                            }
                         }
                         hGO.name = h.ToString();
                         MeshRenderer mr = hGO.GetComponentInChildren<MeshRenderer>();
-                        mr.material = HexMaterials[h.GetHexType()];
+                        mr.material = HexMaterials[(int)h.GetHexType()];
                         hGO.GetComponentInChildren<TextMesh>().text = h.ToString();
                     }
                 }
@@ -104,11 +116,34 @@ public class HexMap : MonoBehaviour
                 if(!storehouseList.Contains(hexTemp) && !ChunkPreviewDict.ContainsKey((hexTemp.GetX(),hexTemp.GetY())))
                 {
                     GameObject hexPreviewGO = Instantiate(ChunkPreviewPrefab, hexTemp.Position(), Quaternion.identity, this.transform);
-                    hexPreviewGO.name = "Chunk Preview " + hexTemp.ToString();
+                    hexPreviewGO.transform.Translate(0f,-0.1f,0f);
+                    hexPreviewGO.name = hexTemp.ToString() + ",Chunk Preview";
+                    hexPreviewGO.GetComponentInChildren<TextMesh>().text = (Mathf.Abs(hexTemp.GetX()) + Mathf.Abs(hexTemp.GetY()) + Mathf.Abs(hexTemp.GetZ())).ToString();
+                    
                     ChunkPreviewDict.Add((hexTemp.GetX(), hexTemp.GetY()),hexPreviewGO);
 
                 }
             }
         }
+    }
+
+    public void DeleteChunkPreview(int x, int y)
+    {
+        if (ChunkPreviewDict.ContainsKey((x,y)))
+        {
+            Destroy(ChunkPreviewDict[(x,y)]);
+            ChunkPreviewDict.Remove((x,y));
+        }
+        
+    }
+
+    public void GenerateChunkFromPreview(GameObject obj)
+    {
+        string name = obj.name;
+        string[] parts = name.Split(',');
+        Hex hexTemp = new Hex(int.Parse(parts[0]), int.Parse(parts[1]), 0);
+        DeleteChunkPreview(hexTemp.GetX(),hexTemp.GetY());
+        GenerateChunk(hexTemp.GetX(),hexTemp.GetY(),CURRENT_RADIUS);
+        GenerateChunkPreviews();
     }
 }

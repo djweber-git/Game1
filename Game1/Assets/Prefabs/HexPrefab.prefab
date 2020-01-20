@@ -92,6 +92,20 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 4293329151
+--- !u!64 &7901041846871498950
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6364030726786207242}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Convex: 0
+  m_CookingOptions: 14
+  m_Mesh: {fileID: 2534964839176971238, guid: b2769204ed3cd234a8e09d0922ebd3e9, type: 3}
 --- !u!1 &7425073655514683084
 GameObject:
   m_ObjectHideFlags: 0
@@ -103,7 +117,7 @@ GameObject:
   - component: {fileID: 5476934030649891063}
   m_Layer: 0
   m_Name: HexPrefab
-  m_TagString: Untagged
+  m_TagString: HexTile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -131,11 +145,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5476934030649891063}
     m_Modifications:
-    - target: {fileID: -927199367670048503, guid: b2769204ed3cd234a8e09d0922ebd3e9,
-        type: 3}
-      propertyPath: m_Name
-      value: HexModel
-      objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: b2769204ed3cd234a8e09d0922ebd3e9,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -191,18 +200,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: -4216859302048453862, guid: b2769204ed3cd234a8e09d0922ebd3e9,
+    - target: {fileID: -927199367670048503, guid: b2769204ed3cd234a8e09d0922ebd3e9,
         type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -4216859302048453862, guid: b2769204ed3cd234a8e09d0922ebd3e9,
-        type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1
+      propertyPath: m_Name
+      value: HexModel
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2769204ed3cd234a8e09d0922ebd3e9, type: 3}
+--- !u!1 &6364030726786207242 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -927199367670048503, guid: b2769204ed3cd234a8e09d0922ebd3e9,
+    type: 3}
+  m_PrefabInstance: {fileID: 3130134971844138755}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7929376467544554521 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -4216859302048453862, guid: b2769204ed3cd234a8e09d0922ebd3e9,
