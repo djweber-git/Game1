@@ -18,16 +18,18 @@ public class HexMap : MonoBehaviour
     public Material[] HexMaterials;
     public Material[] PreviewMaterials;
     
-    private Dictionary<(int,int), Hex> hexDict; 
+    private Dictionary<(int,int), Hex> hexDict;
+    private Dictionary<(int,int), GameObject> hexGODict; 
     private List<Hex> storehouseList;
-    private Dictionary<(int,int), GameObject> ChunkPreviewDict;
+    private Dictionary<(int,int), GameObject> chunkPreviewDict;
     
     // Start is called before the first frame update
     void Start()
     {
         hexDict = new Dictionary<(int, int), Hex>();
+        hexGODict = new Dictionary<(int, int), GameObject>();
         storehouseList = new List<Hex>();
-        ChunkPreviewDict = new Dictionary<(int, int), GameObject>();
+        chunkPreviewDict = new Dictionary<(int, int), GameObject>();
         GenerateChunk(0,0,CURRENT_RADIUS);
 
         //GenerateChunk(-2,5,CURRENT_RADIUS);
@@ -60,9 +62,10 @@ public class HexMap : MonoBehaviour
                 {
                     if (x + y + z == 0)
                     {
-                        Hex h = new Hex(x,y,Hex.Types.grass);
+                        Hex h = new Hex(x,y);
                         GameObject hGO = Instantiate(HexPrefab, h.Position(), Quaternion.identity, this.transform);
                         hexDict.Add((x,y),h);
+                        hexGODict.Add((x,y),hGO);
                         if (x == xInit && y == yInit) 
                         {
                             h.SetHexType(Hex.Types.storehouse);
@@ -70,27 +73,38 @@ public class HexMap : MonoBehaviour
                         }
                         else
                         {
-                            int i = Random.Range(0, 7);
-                            if (i == 0 || (numWater <= 3 && i==2))
+                            int i = Random.Range(0, 8);
+                            if (i == 0 || (numWater <= 2 && i==2))
                             {                   
                                 h.SetHexType(Hex.Types.water);
                                 numWater++;
                             }
-                            else if (i == 1 || (numWater > 3 && numTree <= 3 && i==2) || (numTree < 1 && i==3))
+                            else if (i == 1 || (numWater > 2 && numTree <= 2 && i==2) || (numTree < 1 && i==3))
                             {                   
                                 h.SetHexType(Hex.Types.tree);
                                 numTree++;
                             }
                         }
-                        hGO.name = h.ToString();
-                        MeshRenderer mr = hGO.GetComponentInChildren<MeshRenderer>();
-                        mr.material = HexMaterials[(int)h.GetHexType()];
-                        hGO.GetComponentInChildren<TextMesh>().text = h.ToString();
+                        UpdateHex(x,y);
+                        
                     }
                 }
             }
         }
        
+    }
+
+    public void UpdateHex(int x, int y)
+    {
+        if (hexGODict.ContainsKey((x,y)))
+        {
+            Hex h = hexDict[(x,y)];
+            GameObject hGO = hexGODict[(x,y)];
+            MeshRenderer mr = hGO.GetComponentInChildren<MeshRenderer>();
+            mr.material = HexMaterials[(int)h.GetHexType()];
+            hGO.name = h.ToString();
+            hGO.GetComponentInChildren<TextMesh>().text = h.ToString();
+        }
     }
 
     //Returns an array of vectors length 6 to locate the storehouse of the neighboring chunk from the current chunk
@@ -112,15 +126,15 @@ public class HexMap : MonoBehaviour
             Vector3[] neighbors = FindNeighborChunks(storehouse);
             for(int i = 0; i < neighbors.Length; i++)
             {
-                Hex hexTemp = new Hex((int)neighbors[i].x, (int)neighbors[i].y, 0);
-                if(!storehouseList.Contains(hexTemp) && !ChunkPreviewDict.ContainsKey((hexTemp.GetX(),hexTemp.GetY())))
+                Hex hexTemp = new Hex((int)neighbors[i].x, (int)neighbors[i].y);
+                if(!storehouseList.Contains(hexTemp) && !chunkPreviewDict.ContainsKey((hexTemp.GetX(),hexTemp.GetY())))
                 {
                     GameObject hexPreviewGO = Instantiate(ChunkPreviewPrefab, hexTemp.Position(), Quaternion.identity, this.transform);
                     hexPreviewGO.transform.Translate(0f,-0.1f,0f);
                     hexPreviewGO.name = hexTemp.ToString() + ",Chunk Preview";
                     hexPreviewGO.GetComponentInChildren<TextMesh>().text = (Mathf.Abs(hexTemp.GetX()) + Mathf.Abs(hexTemp.GetY()) + Mathf.Abs(hexTemp.GetZ())).ToString();
                     
-                    ChunkPreviewDict.Add((hexTemp.GetX(), hexTemp.GetY()),hexPreviewGO);
+                    chunkPreviewDict.Add((hexTemp.GetX(), hexTemp.GetY()),hexPreviewGO);
 
                 }
             }
@@ -129,10 +143,10 @@ public class HexMap : MonoBehaviour
 
     public void DeleteChunkPreview(int x, int y)
     {
-        if (ChunkPreviewDict.ContainsKey((x,y)))
+        if (chunkPreviewDict.ContainsKey((x,y)))
         {
-            Destroy(ChunkPreviewDict[(x,y)]);
-            ChunkPreviewDict.Remove((x,y));
+            Destroy(chunkPreviewDict[(x,y)]);
+            chunkPreviewDict.Remove((x,y));
         }
         
     }
@@ -141,7 +155,7 @@ public class HexMap : MonoBehaviour
     {
         string name = obj.name;
         string[] parts = name.Split(',');
-        Hex hexTemp = new Hex(int.Parse(parts[0]), int.Parse(parts[1]), 0);
+        Hex hexTemp = new Hex(int.Parse(parts[0]), int.Parse(parts[1]));
         DeleteChunkPreview(hexTemp.GetX(),hexTemp.GetY());
         GenerateChunk(hexTemp.GetX(),hexTemp.GetY(),CURRENT_RADIUS);
         GenerateChunkPreviews();

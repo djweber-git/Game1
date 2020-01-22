@@ -8,7 +8,9 @@ public class Hex
     private int x;
     private int y;
     private int z;
-
+    private Types type;
+    private int input;
+    private int output;
     public enum Types
     {
         grass = 0,
@@ -17,14 +19,16 @@ public class Hex
         storehouse = 3
 
     };
-    private Types type;
 
-    public Hex(int xInit, int yInit, Types typeInit)
+
+    public Hex(int xInit, int yInit)
     {
         this.x = xInit;
         this.y = yInit;
         this.z = -(xInit + yInit);
-        this.type = typeInit;
+        this.type = Types.grass;
+        this.input = 0;
+        this.output = 0;
     }
 
     public Vector3 Position()
@@ -50,13 +54,16 @@ public class Hex
     }
     public override int GetHashCode() {return x;}
     public override string ToString() {return this.x + "," + this.y + "," + this.z;}
-    public int GetX () {return x;}
+    public int GetX() {return x;}
     public void SetX(int nX) {this.x = nX;}
-    public int GetY () {return y;}
+    public int GetY() {return y;}
     public void SetY(int nY) {this.y = nY;}
-    public int GetZ () {return z;}
+    public int GetZ() {return z;}
     public void SetZ(int nZ) {this.z = nZ;}
-    public Types GetHexType () {return type;}
+    public Types GetHexType() {return type;}
     public void SetHexType(Types nType) {this.type = nType;}
-
+    public int GetInput() {return input;}
+    public void SetInput(int nIn) {this.input = nIn;}
+    public int GetOutput() {return output;}
+    public void SetOutput(int nOut) {this.output = nOut;}
 }
